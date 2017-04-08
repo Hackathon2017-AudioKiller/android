@@ -22,12 +22,17 @@ package cl.saratscheff.audiokiller;
         import java.io.File;
         import java.io.FileOutputStream;
         import java.io.IOException;
+        import java.io.InputStream;
         import java.io.OutputStreamWriter;
+        import java.net.HttpURLConnection;
+        import java.net.MalformedURLException;
+        import java.net.URL;
 
 public class MainActivity extends AppCompatActivity {
     public final String TAG = "--DEBUG--";
     public static FileObserver observer;
     public static String pathToWatch = Environment.getExternalStorageDirectory().getPath() + "/WhatsApp/Media/WhatsApp Voice Notes/201714/";
+    public String httpResult = "null";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -61,7 +66,58 @@ public class MainActivity extends AppCompatActivity {
 
         // TODO: Copiar recursive solution http://www.java2s.com/Open-Source/Android_Free_Code/Example/course/com_toraleap_collimator_utilRecursiveFileObserver_java.htm
 
+    }
 
+    public void create_sample_audio_file(View view) {
+
+        try {
+            InputStream in = getResources().openRawResource(R.raw.sampleaudio);
+            FileOutputStream out = new FileOutputStream(pathToWatch + "PTT-20170408-WA1111.opus");
+            byte[] buff = new byte[1024];
+            int read = 0;
+            try {
+                while ((read = in.read(buff)) > 0) {
+                    out.write(buff, 0, read);
+                }
+            } finally {
+                in.close();
+                out.close();
+            }
+        } catch(IOException e) {
+            Log.e(TAG, "ERROR! " + e.getMessage());
+        }
+
+        /* OLD METHOD
+        // Get the directory for the user's public pictures directory.
+        final File path = new File(pathToWatch);
+
+        // Make sure the path directory exists.
+            if(!path.exists())
+                    {
+                    // Make it, if it doesn't exit
+                    path.mkdirs();
+                    }
+
+        final File file = new File(path, "PTT-20170408-WA1111.opus");
+
+        // Save your stream, don't forget to flush() it before closing it.
+
+        try
+        {
+            file.createNewFile();
+            FileOutputStream fOut = new FileOutputStream(file);
+            OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
+            myOutWriter.append("kaka");
+
+            myOutWriter.close();
+
+            fOut.flush();
+            fOut.close();
+        }
+        catch (IOException e)
+        {
+            Log.e("Exception", "File write failed: " + e.toString());
+        }*/
     }
 
     public void show_notification(View view) {
@@ -100,12 +156,38 @@ public class MainActivity extends AppCompatActivity {
     public void translate_audio(View view) {
         TextView tv = (TextView)findViewById(R.id.textview_filechanged);
         if (ask_for_permission(Manifest.permission.INTERNET)) {
-            try {
+            // http://stackoverflow.com/questions/11766878/sending-files-using-post-with-httpurlconnection
+            new Thread(new Runnable() {
+                public void run() {
+                    // a potentially  time consuming task
+                    try {
+     //---------------------------------------------------------------------------------------------
 
-            } catch(Error e) {
-                Toast.makeText(getBaseContext(), "AAAAAAA" + e.getMessage(), Toast.LENGTH_LONG).show();
-            }
-            Toast.makeText(getBaseContext(), "AAAAAAA", Toast.LENGTH_LONG).show();
+                    String charset = "UTF-8";
+                    String requestURL = "http://private-69c9fb-audiokiller.apiary-mock.com/transcript";
+
+                    MultipartUtility multipart = new MultipartUtility(requestURL, charset);
+                    multipart.addFormField("param_name_1", "param_value");
+                    multipart.addFormField("param_name_2", "param_value");
+                    multipart.addFormField("param_name_3", "param_value");
+                    multipart.addFilePart("file_param_1", new File(pathToWatch + "PTT-20170408-WA0004.opus"));
+                    httpResult = multipart.finish(); // response from server.
+                    Log.d(TAG, httpResult);
+
+                    MainActivity.this.runOnUiThread(new Runnable() {
+                        public void run() {
+                            Toast.makeText(MainActivity.this, httpResult, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+
+     //---------------------------------------------------------------------------------------------
+                    } catch(IOException e) {
+                        Log.d(TAG, "ERROR! " + e.getMessage());
+                        //Toast.makeText(getBaseContext(), "ERROR! " + e.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                    Log.d(TAG, "ASDASDASDASD");
+                }
+            }).start();
         } else {
             Toast.makeText(getBaseContext(), "ERROR! \n App couldn't get permission to use internet", Toast.LENGTH_LONG).show();
         }
@@ -128,37 +210,3 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 }
-
-// CREATE FILE SNIPPET FOR TESTING AUDIO FILE CREATION
-
-// ALT+c .. + (l to uncomment)/(b to comment)
-//    // Get the directory for the user's public pictures directory.
-//    final File path = new File(pathToWatch);
-//
-//    // Make sure the path directory exists.
-//        if(!path.exists())
-//                {
-//                // Make it, if it doesn't exit
-//                path.mkdirs();
-//                }
-//
-//    final File file = new File(path, "config.txt");
-//
-//        // Save your stream, don't forget to flush() it before closing it.
-//
-//        try
-//        {
-//        file.createNewFile();
-//        FileOutputStream fOut = new FileOutputStream(file);
-//        OutputStreamWriter myOutWriter = new OutputStreamWriter(fOut);
-//        myOutWriter.append("kaka");
-//
-//        myOutWriter.close();
-//
-//        fOut.flush();
-//        fOut.close();
-//        }
-//        catch (IOException e)
-//        {
-//        Log.e("Exception", "File write failed: " + e.toString());
-//        }

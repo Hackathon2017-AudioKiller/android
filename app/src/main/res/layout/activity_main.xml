@@ -22,6 +22,16 @@
         android:paddingBottom="150px"/>
 
     <Button
+        android:id="@+id/button_translate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Translate audio to text"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textview_filechanged"
+        android:onClick="translate_audio" />
+
+    <Button
         android:id="@+id/button_notification"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -33,13 +43,13 @@
         android:onClick="show_notification" />
 
     <Button
-        android:id="@+id/button_translate"
+        android:id="@+id/button_create_file"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Translate audio to text"
+        android:text="Create sample audio file"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textview_filechanged"
-        android:onClick="translate_audio" />
+        app:layout_constraintTop_toBottomOf="@+id/button_notification"
+        android:onClick="create_sample_audio_file" />
 
 </android.support.constraint.ConstraintLayout>
