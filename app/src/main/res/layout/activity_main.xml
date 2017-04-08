@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="cl.saratscheff.audiokiller.MainActivity">
+
+    <TextView
+        android:id="@+id/textview_filechanged"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="0dp"
+        android:layout_marginTop="0dp"
+        android:gravity="center"
+        android:text="Looking for file changes..."
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:paddingBottom="150px"/>
+
+    <Button
+        android:id="@+id/button_notification"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Show Notification"
+        android:layout_below="@id/textview_filechanged"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/button_translate"
+        android:onClick="show_notification" />
+
+    <Button
+        android:id="@+id/button_translate"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Translate audio to text"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textview_filechanged"
+        android:onClick="translate_audio" />
+
+</android.support.constraint.ConstraintLayout>
