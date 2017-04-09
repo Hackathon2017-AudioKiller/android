@@ -107,7 +107,7 @@ public class FilesObservingService extends Service {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setAutoCancel(true)
-                        .setSmallIcon(R.drawable.cherry)
+                        .setSmallIcon(R.drawable.logo)
                         .setContentTitle("New Audio found!")
                         .setContentText("Click here to see transcript");
         // Creates an explicit intent for an Activity in your app
@@ -151,11 +151,11 @@ public class FilesObservingService extends Service {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
                         .setAutoCancel(true)
-                        .setSmallIcon(R.drawable.cherry)
-                        .setContentTitle("New Audio found!")
+                        .setSmallIcon(R.drawable.logo)
+                        .setContentTitle("New Video found!")
                         .setContentText("Click here to see transcript");
         // Creates an explicit intent for an Activity in your app
-        Intent resultIntent = new Intent(this, TranscriptActivity.class);
+        Intent resultIntent = new Intent(this, SubtitledVideoActivity.class);
         try {
             JSONObject transcriptResultJson = new JSONObject(transcriptResult);
             resultIntent.putExtra("url", transcriptResultJson.getString("result"));
@@ -238,12 +238,13 @@ public class FilesObservingService extends Service {
                 //Toast.makeText(getBaseContext(), file + " was saved!", Toast.LENGTH_LONG).show();
                 if (event == FileObserver.CREATE || event == FileObserver.MOVED_TO){
 
-                    toast_that("New audio file found!");
-                    Log.d(TAG, "File created: " + path_to_observe + file);
+                    Log.d(TAG, "File created (" + type + "): " + path_to_observe + file);
 
                     if (type == "audio") {
+                        toast_that("New audio file found!");
                         translate_audio(path_to_observe + file);
                     } else if (type == "video"){
+                        toast_that("New video file found!");
                         translate_video(path_to_observe + file);
                     } else {
                         Log.e(TAG, "ERROR! Unsupported type");

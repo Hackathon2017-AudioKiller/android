@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
         ListView listView = (ListView) findViewById(R.id.audio_list);
         listView.setAdapter(adapter);
-        adapter.add("Hi, my name is Pedro and this is a test Audio");
+        /*adapter.add("Hi, my name is Pedro and this is a test Audio");
         adapter.add("Facebook rocks!");
         adapter.add("Can you believe it? The world is about to end next year, they are saying so all over the non existant world.");
         adapter.add("Junemann is the man");
@@ -51,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
         adapter.add("Pump it up! We want louder music!");
         adapter.add("Testing Google Speech API");
         adapter.add("This is a test");
-        adapter.add("Hi, I'm Pedro");
+        adapter.add("Hi, I'm Pedro");*/
 
         TextView tv = (TextView)findViewById(R.id.textview_filechanged);
         if (ask_for_permission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {

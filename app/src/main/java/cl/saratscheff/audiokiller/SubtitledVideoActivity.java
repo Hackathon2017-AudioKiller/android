@@ -4,6 +4,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.VideoView;
 
 public class SubtitledVideoActivity extends AppCompatActivity {
@@ -34,7 +35,7 @@ public class SubtitledVideoActivity extends AppCompatActivity {
             @Override
             public void onPrepared(MediaPlayer mp) {
                 mp.setLooping(true);
-                vv.start();
+                mp.start();
             }
         });
     }
