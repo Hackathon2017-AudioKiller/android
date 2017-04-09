@@ -43,6 +43,8 @@
             android:name=".FilesObservingService"
             android:enabled="true"
             android:exported="true" />
+
+        <activity android:name=".SubtitledVideoActivity"></activity>
     </application>
 
 </manifest>

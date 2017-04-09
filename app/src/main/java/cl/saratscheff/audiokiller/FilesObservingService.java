@@ -19,8 +19,12 @@ import android.widget.Toast;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 
 public class FilesObservingService extends Service {
     public static String TAG;
@@ -34,6 +38,7 @@ public class FilesObservingService extends Service {
     public static String whatsappVideoPath;
     public static String telegramAudioPath;
     public static String telegramVideoPath;
+    
 
     public FilesObservingService() {
 
@@ -66,11 +71,11 @@ public class FilesObservingService extends Service {
 
         int res = super.onStartCommand(intent, flags, startId);
 
-        start_observer(whatsappVoiceObserver, whatsappVoicePath);
-        start_observer(whatsappAudioObserver, whatsappAudioPath);
-        start_observer(whatsappVideoObserver, whatsappVideoPath);
-        start_observer(telegramAudioObserver, telegramAudioPath);
-        start_observer(telegramVideoObserver, telegramVideoPath);
+        start_observer(whatsappVoiceObserver, whatsappVoicePath, "audio");
+        start_observer(whatsappAudioObserver, whatsappAudioPath, "audio");
+        start_observer(whatsappVideoObserver, whatsappVideoPath, "video");
+        start_observer(telegramAudioObserver, telegramAudioPath, "audio");
+        start_observer(telegramVideoObserver, telegramVideoPath, "video");
         Log.d(TAG, "####### FILE-OBSERVERS STARTED! #######");
 
         startServiceForeground(intent, flags, startId);
@@ -95,8 +100,7 @@ public class FilesObservingService extends Service {
         return START_STICKY;
     }
 
-
-    public void show_notification(String transcriptResult) {
+    public void show_audio_notification(String transcriptResult) {
 
         // https://developer.android.com/guide/topics/ui/notifiers/notifications.html#CreateNotification
 
@@ -110,8 +114,51 @@ public class FilesObservingService extends Service {
         Intent resultIntent = new Intent(this, TranscriptActivity.class);
         try {
             JSONObject transcriptResultJson = new JSONObject(transcriptResult);
+            Intent t_int = new Intent("newAudioTranscript");
+            t_int.putExtra("transcript", transcriptResultJson.getString("result"));
+            getApplicationContext().sendBroadcast(t_int);
             resultIntent.putExtra("transcript", transcriptResultJson.getString("result"));
             resultIntent.putExtra("status", transcriptResultJson.getString("status"));
+        } catch(JSONException e) {
+            Log.e(TAG, "ERROR 002! " + e.getMessage());
+        }
+
+        // The stack builder object will contain an artificial back stack for the
+        // started Activity.
+        // This ensures that navigating backward from the Activity leads out of
+        // your application to the Home screen.
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+        // Adds the back stack for the Intent (but not the Intent itself)
+        stackBuilder.addParentStack(MainActivity.class);
+        // Adds the Intent that starts the Activity to the top of the stack
+        stackBuilder.addNextIntent(resultIntent);
+        PendingIntent resultPendingIntent =
+                stackBuilder.getPendingIntent(
+                        0,
+                        PendingIntent.FLAG_UPDATE_CURRENT
+                );
+        mBuilder.setContentIntent(resultPendingIntent);
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        // mId allows you to update the notification later on.
+        mNotificationManager.notify(0, mBuilder.build());
+    }
+
+    public void show_video_notification(String transcriptResult) {
+
+        // https://developer.android.com/guide/topics/ui/notifiers/notifications.html#CreateNotification
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+                        .setAutoCancel(true)
+                        .setSmallIcon(R.drawable.cherry)
+                        .setContentTitle("New Audio found!")
+                        .setContentText("Click here to see transcript");
+        // Creates an explicit intent for an Activity in your app
+        Intent resultIntent = new Intent(this, TranscriptActivity.class);
+        try {
+            JSONObject transcriptResultJson = new JSONObject(transcriptResult);
+            resultIntent.putExtra("url", transcriptResultJson.getString("result"));
         } catch(JSONException e) {
             Log.e(TAG, "ERROR 002! " + e.getMessage());
         }
@@ -150,10 +197,8 @@ public class FilesObservingService extends Service {
                 //multipart.addFormField("param_name_1", "param_value");
                 multipart.addFilePart("audio", new File(new_audio_path));
                 String httpResult = multipart.finish(); // response from server.
-                show_notification(httpResult);
+                show_audio_notification(httpResult);
                 Log.d(TAG, httpResult);
-
-                toast_that(httpResult);
 
                 //---------------------------------------------------------------------------------------------
             } catch(IOException e) {
@@ -163,7 +208,30 @@ public class FilesObservingService extends Service {
         }).start();
     }
 
-    public void start_observer(FileObserver obs, String path_to_observe) {
+    public void translate_video(String new_video_path) {
+        // http://stackoverflow.com/questions/11766878/sending-files-using-post-with-httpurlconnection
+        new Thread(() -> {
+            try {
+                //---------------------------------------------------------------------------------------------
+
+                String charset = "UTF-8";
+                String requestURL = getString(R.string.server_url) + "api/subtitlify/";
+
+                MultipartUtility multipart = new MultipartUtility(requestURL, charset);
+                multipart.addFilePart("video", new File(new_video_path));
+                String httpResult = multipart.finish(); // response from server.
+                show_video_notification(httpResult);
+                Log.d(TAG, httpResult);
+
+                //---------------------------------------------------------------------------------------------
+            } catch(IOException e) {
+                Log.e(TAG, "ERROR 3! " + e.getMessage());
+                //Toast.makeText(getBaseContext(), "ERROR! " + e.getMessage(), Toast.LENGTH_LONG).show();
+            }
+        }).start();
+    }
+
+    public void start_observer(FileObserver obs, String path_to_observe, String type) {
         obs = new FileObserver(path_to_observe) { // set up a file whatsappVoiceObserver to watch this directory on sd card
             @Override
             public void onEvent(int event, String file) {
@@ -173,7 +241,13 @@ public class FilesObservingService extends Service {
                     toast_that("New audio file found!");
                     Log.d(TAG, "File created: " + path_to_observe + file);
 
-                    translate_audio(path_to_observe + file);
+                    if (type == "audio") {
+                        translate_audio(path_to_observe + file);
+                    } else if (type == "video"){
+                        translate_video(path_to_observe + file);
+                    } else {
+                        Log.e(TAG, "ERROR! Unsupported type");
+                    }
                 }
             }
         };
