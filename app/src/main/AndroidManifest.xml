@@ -21,8 +21,7 @@
         </activity>
         <activity android:name=".TranscriptActivity" />
 
-        <receiver
-            android:name="cl.saratscheff.audiokiller.ServiceStartReceiver">
+        <receiver android:name=".ServiceStartReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
@@ -33,15 +32,17 @@
                 <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
         </receiver>
-        <!--<receiver
+        <!--
+            <receiver
             android:name=".ServiceStartReceiver"
             android:enabled="true"
-            android:exported="true" />-->
+            android:exported="true" />
+        -->
 
         <service
             android:name=".FilesObservingService"
             android:enabled="true"
-            android:exported="true"></service>
+            android:exported="true" />
     </application>
 
 </manifest>

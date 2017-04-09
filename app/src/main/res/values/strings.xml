@@ -2,10 +2,11 @@
     <string name="app_name">AudioKiller</string>
     <string name="tag">--DEBUG--</string>
     <string name="server_url">http://104.131.85.110/</string>
-    <string name="whatsapp_voice_path">/WhatsApp/Media/WhatsApp Voice Notes/201714/</string>
+    <string name="whatsapp_voice_path">/WhatsApp/Media/WhatsApp Voice Notes/201715/</string>
     <string name="whatsapp_audio_path">/WhatsApp/Media/WhatsApp Audio/</string>
     <string name="whatsapp_video_path">/WhatsApp/Media/WhatsApp Video/</string>
     <string name="telegram_audio_path">/Telegram/Telegram Audio/</string>
     <string name="telegram_video_path">/Telegram/Telegram Video/</string>
     <string name="observers_working_message">Looking for new audio files!</string>
+    <string name="permission_error_message">We couldn\'t get the required permissions :(</string>
 </resources>

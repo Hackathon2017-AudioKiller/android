@@ -29,13 +29,16 @@ public class MainActivity extends AppCompatActivity {
         TAG = getString(R.string.tag);
         whatsappVoicePath = Environment.getExternalStorageDirectory().getPath() + getString(R.string.whatsapp_voice_path);
 
-        if (ask_for_permission(Manifest.permission.WRITE_EXTERNAL_STORAGE) && ask_for_permission(Manifest.permission.INTERNET)) {
-            TextView tv = (TextView)findViewById(R.id.textview_filechanged);
+        TextView tv = (TextView)findViewById(R.id.textview_filechanged);
+        if (ask_for_permission(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+            ask_for_permission(Manifest.permission.INTERNET);
             tv.setText(getString(R.string.observers_working_message));
             Intent iFileObserver = new Intent(MainActivity.this, FilesObservingService.class);
             MainActivity.this.startService(iFileObserver);
         } else {
+            Log.e(TAG, "ERROR 008!");
             Toast.makeText(getBaseContext(), "ERROR 004! Couldn't get the required permissions", Toast.LENGTH_LONG).show();
+            tv.setText(getString(R.string.permission_error_message));
         }
     }
 
@@ -68,11 +71,24 @@ public class MainActivity extends AppCompatActivity {
                 this, permission_type);
         if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(this,new String[]{permission_type}, 1);
-            if (permissionCheck == PackageManager.PERMISSION_GRANTED)
-            {
-                Toast.makeText(MainActivity.this, "Permission Granted!", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(MainActivity.this, "Couldn't get necessary permissions!", Toast.LENGTH_SHORT).show();
+            int cnt = 0;
+            while(cnt<200) {
+                permissionCheck = ContextCompat.checkSelfPermission(this, permission_type);
+                if (permissionCheck == PackageManager.PERMISSION_GRANTED)
+                {
+                    Toast.makeText(MainActivity.this, "Permission Granted!", Toast.LENGTH_SHORT).show();
+                    break;
+                }
+                try {
+                    Thread.sleep(100);
+                } catch(InterruptedException e) {
+                    Log.e(TAG, "ERROR 007! " + e.getMessage());
+                    return false;
+                }
+                cnt++;
+            }
+            if(cnt == 200) {
+                Log.e(TAG, "ERROR 007-b! No permission granted");
                 return false;
             }
         }
